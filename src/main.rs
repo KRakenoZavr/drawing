@@ -26,10 +26,6 @@ fn main() {
     // }
 
     raster::save(&image, "image.png").unwrap();
-
-    // let mut image = Image::blank(150, 100);
-    // image.set_pixel(0, 0, Color::green()).expect("");
-    // raster::save(&image, "image1.png").unwrap();
 }
 
 impl Displayable for Image {

@@ -39,12 +39,6 @@ impl Point {
             y: random_number(0, max_h),
         }
     }
-
-    fn distance(&self, other: &Point) -> i32 {
-        let distance =
-            (self.x as f64 - other.x as f64).powf(2.0) + (self.y as f64 - other.y as f64).powf(2.0);
-        distance.sqrt().round() as i32
-    }
 }
 
 impl Drawable for Point {
@@ -178,85 +172,6 @@ impl Circle {
 }
 
 impl Drawable for Circle {
-    // fn draw(&self, image: &mut Image) {
-    //     // let circle_len = (2_f64 * self.r as f64 * std::f64::consts::PI) as usize;
-    //     let mut points_arr: Vec<Point> = Vec::new();
-
-    //     let (x_min, x_max) = (self.center.x - self.r, self.center.x + self.r);
-    //     let (y_min, y_max) = (self.center.y - self.r, self.center.y + self.r);
-
-    //     let (x_min, x_max) = (
-    //         if 0 > x_min { 0 } else { x_min },
-    //         if image.width < x_max {
-    //             image.width
-    //         } else {
-    //             x_max
-    //         },
-    //     );
-
-    //     let (y_min, y_max) = (
-    //         if 0 > y_min { 0 } else { y_min },
-    //         if image.height < y_max {
-    //             image.height
-    //         } else {
-    //             y_max
-    //         },
-    //     );
-
-    //     // loop {
-
-    //     for x in x_min..x_max {
-    //         for y in y_min..y_max {
-    //             let new_point = Point::new(x, y);
-
-    //             if new_point.distance(&self.center) != self.r {
-    //                 continue;
-    //             }
-
-    //             if points_arr.contains(&new_point) {
-    //                 continue;
-    //             }
-
-    //             points_arr.push(new_point);
-    //         }
-    //     }
-
-    //     // let new_point = Point::new(
-    //     //     rand::thread_rng().gen_range(x_min, x_max),
-    //     //     rand::thread_rng().gen_range(y_min, y_max),
-    //     // );
-
-    //     // println!(
-    //     //     "center - {:?}, r - {}, {:?}",
-    //     //     self.center, self.r, new_point
-    //     // );
-
-    //     // if points_arr.contains(&new_point) {
-    //     //     continue;
-    //     // }
-
-    //     // if new_point.distance(&self.center) <= self.r + 1
-    //     //     && new_point.distance(&self.center) >= self.r - 1
-    //     // {
-    //     //     points_arr.push(new_point);
-    //     // }
-
-    //     // if points_arr.len() == circle_len {
-    //     //     break;
-    //     // }
-    //     // }
-
-    //     // println!("{:?}", points_arr);
-
-    //     let color = Circle::color();
-
-    //     for pp in points_arr {
-    //         image
-    //             .set_pixel(pp.x, pp.y, color.clone())
-    //             .unwrap_or_default();
-    //     }
-    // }
-
     fn draw(&self, image: &mut Image) {
         let circle_len = 2.0 * self.r as f64 * std::f64::consts::PI;
         let color = Circle::color();
@@ -281,8 +196,7 @@ impl Drawable for Circle {
             // println!("{}, {}", d, self.r);
             // println!();
 
-            image
-                .set_pixel(pp.x, pp.y, color.clone());
+            image.set_pixel(pp.x, pp.y, color.clone());
 
             degree += cf;
 
