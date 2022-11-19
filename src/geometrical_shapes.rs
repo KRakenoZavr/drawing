@@ -155,6 +155,8 @@ impl Drawable for Line {
 pub struct Circle {
     center: Point,
     r: i32,
+
+    points: Vec<Point>,
 }
 
 impl Circle {
@@ -162,6 +164,8 @@ impl Circle {
         Self {
             center: Point::new(center.x, center.y),
             r,
+
+            points: vec![],
         }
     }
 
@@ -169,6 +173,8 @@ impl Circle {
         Self {
             center: Point::random(max_w, max_h),
             r: rand::thread_rng().gen_range(0, max_w),
+
+            points: vec![],
         }
     }
 
@@ -184,9 +190,33 @@ impl Circle {
         }
         return v;
     }
+
+    fn reverse_x_axis(&self, v: &Vec<Point>) -> Vec<Point> {
+        let np = v
+            .iter()
+            .map(|p| Point::new(self.center.x + (self.center.x - p.x), p.y))
+            .collect::<Vec<Point>>();
+
+        np
+    }
+
+    fn reverse_all(&self, v: &Vec<Point>) -> Vec<Point> {
+        let np = v
+            .iter()
+            .map(|p| {
+                Point::new(
+                    self.center.x + (self.center.x - p.x),
+                    self.center.y + self.center.y - p.y,
+                )
+            })
+            .collect::<Vec<Point>>();
+
+        np
+    }
 }
 
-impl Drawable for Circle {    fn draw(&self, image: &mut Image) {
+impl Drawable for Circle {
+    fn draw(&self, image: &mut Image) {
         let color = Circle::color();
 
         let c_const: f64 = 2.0_f64.sqrt() / 2.0;
@@ -214,9 +244,24 @@ impl Drawable for Circle {    fn draw(&self, image: &mut Image) {
             self.center.y as usize + dist_const as usize,
         );
 
+        // create quarter of circle
         let v2 = self.loop_draw(x_min, x_max, y_min, y_max);
-
         v1.extend(v2);
+
+        // create reversed by x axis quarter of circle
+        let v2 = self.reverse_x_axis(&v1);
+        v1.extend(v2);
+
+        // create reversed by y axis quarter of circle
+        let v2 = self.reverse_all(&v1);
+        v1.extend(v2);
+
+        for p in v1 {
+            if p.x > image.width || p.x < 0 || p.y > image.height || p.y < 0 {
+                continue;
+            }
+            image.set_pixel(p.x, p.y, color.clone());
+        }
     }
 }
 
