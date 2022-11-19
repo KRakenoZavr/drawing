@@ -22,7 +22,7 @@ pub trait Displayable {
     fn display(&mut self, x: i32, y: i32, color: Color) {}
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -38,6 +38,12 @@ impl Point {
             x: random_number(0, max_w),
             y: random_number(0, max_h),
         }
+    }
+
+    fn distance(&self, other: &Point) -> i32 {
+        let distance =
+            (self.x as f64 - other.x as f64).powf(2.0) + (self.y as f64 - other.y as f64).powf(2.0);
+        distance.sqrt().round() as i32
     }
 }
 
@@ -106,9 +112,7 @@ impl Drawable for Line {
             }
 
             for i in 0..y_abs {
-                image
-                    .set_pixel(x_arr[i], y_arr[i], color.clone())
-                    .expect("");
+                image.set_pixel(x_arr[i], y_arr[i], color.clone());
             }
         } else {
             let mut x_arr = vec![0; x_abs];
@@ -142,9 +146,7 @@ impl Drawable for Line {
             }
 
             for i in 0..x_abs {
-                image
-                    .set_pixel(x_arr[i], y_arr[i], color.clone())
-                    .expect("");
+                image.set_pixel(x_arr[i], y_arr[i], color.clone());
             }
         }
     }
@@ -169,44 +171,52 @@ impl Circle {
             r: rand::thread_rng().gen_range(0, max_w),
         }
     }
-}
 
-impl Drawable for Circle {
-    fn draw(&self, image: &mut Image) {
-        let circle_len = 2.0 * self.r as f64 * std::f64::consts::PI;
-        let color = Circle::color();
-
-        // reverse calculus to more accurate
-        let cf = 360.0 / circle_len;
-        let cf = if cf > 1.0 { 1.0 } else { cf };
-
-        println!("{cf}, {}, {}", self.r, circle_len);
-
-        let mut degree = 0.0_f64;
-        loop {
-            // let radians = degree * std::f64::consts::PI / 180.0;
-            let x = self.r as f64 * degree.cos() + self.center.x as f64;
-            let y = self.r as f64 * degree.sin() + self.center.y as f64;
-
-            let pp = Point::new(x as i32, y as i32);
-
-            // let d = pp.distance(&self.center);
-
-            // println!("{:?}\n{:?}", self.center, pp);
-            // println!("{}, {}", d, self.r);
-            // println!();
-
-            image.set_pixel(pp.x, pp.y, color.clone());
-
-            degree += cf;
-
-            if degree >= 360.0 {
-                break;
+    fn loop_draw(&self, x_min: usize, x_max: usize, y_min: usize, y_max: usize) -> Vec<Point> {
+        let mut v: Vec<Point> = vec![];
+        for x in x_min..=x_max {
+            for y in y_min..=y_max {
+                let p = Point::new(x as i32, y as i32);
+                if self.center.distance(&p) == self.r {
+                    v.push(p);
+                }
             }
         }
+        return v;
+    }
+}
 
-        // for pp in points_arr {
-        // }
+impl Drawable for Circle {    fn draw(&self, image: &mut Image) {
+        let color = Circle::color();
+
+        let c_const: f64 = 2.0_f64.sqrt() / 2.0;
+        let dist_const = self.r as f64 * c_const;
+
+        // first half of quarter
+        let (x_min, x_max) = (
+            self.center.x as usize,
+            self.center.x as usize + dist_const as usize,
+        );
+        let (y_min, y_max) = (
+            self.center.y as usize + dist_const as usize,
+            self.center.y as usize + self.r as usize,
+        );
+
+        let mut v1 = self.loop_draw(x_min, x_max, y_min, y_max);
+
+        // second half of quarter
+        let (x_min, x_max) = (
+            self.center.x as usize + dist_const as usize,
+            self.center.x as usize + self.r as usize,
+        );
+        let (y_min, y_max) = (
+            self.center.y as usize,
+            self.center.y as usize + dist_const as usize,
+        );
+
+        let v2 = self.loop_draw(x_min, x_max, y_min, y_max);
+
+        v1.extend(v2);
     }
 }
 
