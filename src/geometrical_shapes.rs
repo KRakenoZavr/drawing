@@ -49,7 +49,7 @@ impl Point {
 
 impl Drawable for Point {
     fn draw(&self, image: &mut Image) {
-        image.set_pixel(self.x, self.y, Point::color()).expect("");
+        image.display(self.x, self.y, Point::color());
     }
 }
 
@@ -112,7 +112,7 @@ impl Drawable for Line {
             }
 
             for i in 0..y_abs {
-                image.set_pixel(x_arr[i], y_arr[i], color.clone());
+                image.display(x_arr[i], y_arr[i], color.clone());
             }
         } else {
             let mut x_arr = vec![0; x_abs];
@@ -146,7 +146,7 @@ impl Drawable for Line {
             }
 
             for i in 0..x_abs {
-                image.set_pixel(x_arr[i], y_arr[i], color.clone());
+                image.display(x_arr[i], y_arr[i], color.clone());
             }
         }
     }
@@ -155,8 +155,6 @@ impl Drawable for Line {
 pub struct Circle {
     center: Point,
     r: i32,
-
-    points: Vec<Point>,
 }
 
 impl Circle {
@@ -164,8 +162,6 @@ impl Circle {
         Self {
             center: Point::new(center.x, center.y),
             r,
-
-            points: vec![],
         }
     }
 
@@ -173,8 +169,6 @@ impl Circle {
         Self {
             center: Point::random(max_w, max_h),
             r: rand::thread_rng().gen_range(0, max_w),
-
-            points: vec![],
         }
     }
 
@@ -257,10 +251,7 @@ impl Drawable for Circle {
         v1.extend(v2);
 
         for p in v1 {
-            if p.x > image.width || p.x < 0 || p.y > image.height || p.y < 0 {
-                continue;
-            }
-            image.set_pixel(p.x, p.y, color.clone());
+            image.display(p.x, p.y, color.clone());
         }
     }
 }
@@ -314,8 +305,8 @@ impl Drawable for Rectangle {
         } else {
             self.x2.x..self.x1.x
         } {
-            image.set_pixel(idx, self.x1.y, color.clone()).expect("");
-            image.set_pixel(idx, self.x2.y, color.clone()).expect("");
+            image.display(idx, self.x1.y, color.clone());
+            image.display(idx, self.x2.y, color.clone());
         }
 
         for idx in if self.x1.y < self.x2.y {
@@ -323,8 +314,8 @@ impl Drawable for Rectangle {
         } else {
             self.x2.y..self.x1.y
         } {
-            image.set_pixel(self.x1.x, idx, color.clone()).expect("");
-            image.set_pixel(self.x2.x, idx, color.clone()).expect("");
+            image.display(self.x1.x, idx, color.clone());
+            image.display(self.x2.x, idx, color.clone());
         }
     }
 }
